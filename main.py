@@ -30,35 +30,6 @@ model = SASRec(user_num = num_u, item_num = num_i, maxlen = 200, num_blocks = 2,
 model.load_state_dict(torch.load('checkpoint/ml-1m-base.pth', map_location=torch.device('cpu')), strict = True)
 model = model.to('cpu')
 
-### Valid Evaluation
-model.eval()
-recall_100, recall_50, recall_10, ndcg_10 = 0,0,0,0
-with torch.no_grad():
-    for valid_batch in valid_loader:
-        u, seq, pos, test_items, mask = valid_batch
-        batch_recall_100, batch_recall_50, batch_recall_10, batch_ndcg_10 = eval_step(model, u, seq, pos, test_items, mask)
-        recall_100 += batch_recall_100
-        recall_50 += batch_recall_50
-        recall_10 += batch_recall_10
-        ndcg_10 += batch_ndcg_10
-print(f'valid_recall_100: {recall_100 / len(valid)}, valid_recall_50: {recall_50 / len(valid)}, valid_recall_10: {recall_10 / len(valid)}, valid_ndcg_10: {ndcg_10 / len(valid)}')
-
-
-### Test Evaluation
-model.eval()
-recall_100, recall_50, recall_10, ndcg_10 = 0,0,0,0
-with torch.no_grad():
-    for test_batch in test_loader:
-        u, seq, pos, test_items, mask = test_batch
-        batch_recall_100, batch_recall_50, batch_recall_10, batch_ndcg_10 = eval_step(model, u, seq, pos, test_items, mask)
-        recall_100 += batch_recall_100
-        recall_50 += batch_recall_50
-        recall_10 += batch_recall_10
-        ndcg_10 += batch_ndcg_10
-print(f'test_recall_100: {recall_100 / len(test)}, test_recall_50: {recall_50 / len(test)}, test_recall_10: {recall_10 / len(test)}, test_ndcg_10: {ndcg_10 / len(test)}')
-
-
-### Fine-tuning Stage
 criterion = torch.nn.BCEWithLogitsLoss()
 optimizer = torch.optim.AdamW(model.parameters(), lr = 1e-3, weight_decay = 1e-3)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = 25, eta_min = 1e-4)
