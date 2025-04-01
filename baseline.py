@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data.dataloader import DataLoader
 import numpy as np
-from model.msmrec import *
+from model.sasrec import *
 from utils import *
 from tqdm import tqdm
 import os
@@ -18,7 +18,7 @@ args = parser.parse_args()
 
 
 num_u, num_i = get_usr_itm_num(args.dataset)
-train,valid,test = load_train_valid_test_data_num(ds_dict=load_txt_file(args.dataset), itemnum=num_i)
+train,valid,test = load_train_valid_test_data_num(ds_dict=load_txt_file(args.dataset), itemnum=num_i, skip_short=300)
 
 
 train_loader = DataLoader(train, batch_size = 256, shuffle = True, collate_fn = collate_train)
@@ -26,14 +26,23 @@ valid_loader  = DataLoader(valid, batch_size = 256, shuffle = False, collate_fn 
 test_loader  = DataLoader(test, batch_size = 256, shuffle = False, collate_fn = collate_test)
 print(num_u, num_i)
 
+model = SASRec(user_num = num_u, item_num = num_i, maxlen = 200, num_blocks = 2, num_heads = 1, hidden_units = 50, dropout_rate = 0.2)
 
-def get_meta_embed(dataset_name = 'ml-1m', use_rag = False, llm_model = 'gpt-4o-mini', embedding_model = 'bert'):
-    return torch.zeros(num_i + 1, 3, 768).flatten(start_dim=1) # Placeholder for meta embedding
+# ### TODO add meta embedding
+# def get_meta_embed(dataset_name, use_rag, llm_model = 'gpt-4o-mini', embedding_model = 'bert'):
+#     import openai 
+#     import transformers
+#     pass
+#     ### RETURNS NUM_I X K(MODALITY) X EMBEDDING DIM (768)
 
-model = MSMRec(user_num = num_u, item_num = num_i, maxlen = 200, num_blocks = 2, num_heads = 1, hidden_units = 50, dropout_rate = 0.2, num_modality=3, meta_emb = get_meta_embed(args.dataset, args.use_rag, args.llm_model, args.embedding_model))
+# meta_embed = get_meta_embed(args.dataset, args.use_rag, args._get_args.llm_model, args.embedding_model)
+# model = SASRec(user_num = num_u, item_num = num_i, maxlen = 200, num_blocks = 2, num_heads = 1, hidden_units = 50, dropout_rate = 0.2, meta_embed = meta_embed)
+
+
+
 
 ### DEVICE
-model.load_state_dict(torch.load('checkpoint/ml-1m-base.pth', map_location=torch.device('cpu')), strict = False)
+model.load_state_dict(torch.load('checkpoint/ml-1m-base.pth', map_location=torch.device('cpu')), strict = True)
 model = model.to('cpu')
 
 criterion = torch.nn.BCEWithLogitsLoss()
