@@ -11,6 +11,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', type=str, default='ml-1m')
 parser.add_argument('--use_rag', type=bool, default=False)
+parser.add_argument('--llm_model', type=str, default='gpt-4o-mini')
 parser.add_argument('--embedding_model', type=str, default='bert')
 args = parser.parse_args()
 
@@ -26,6 +27,20 @@ test_loader  = DataLoader(test, batch_size = 256, shuffle = False, collate_fn = 
 print(num_u, num_i)
 
 model = SASRec(user_num = num_u, item_num = num_i, maxlen = 200, num_blocks = 2, num_heads = 1, hidden_units = 50, dropout_rate = 0.2)
+
+### TODO add meta embedding
+def get_meta_embed(dataset_name, use_rag, llm_model = 'gpt-4o-mini', embedding_model = 'bert'):
+    import openai 
+    import transformers
+    pass
+    ### RETURNS NUM_I X K(MODALITY) X EMBEDDING DIM (768)
+
+meta_embed = get_meta_embed(args.dataset, args.use_rag, args._get_args.llm_model, args.embedding_model)
+model = SASRec(user_num = num_u, item_num = num_i, maxlen = 200, num_blocks = 2, num_heads = 1, hidden_units = 50, dropout_rate = 0.2, meta_embed = meta_embed)
+
+
+
+
 ### DEVICE
 model.load_state_dict(torch.load('checkpoint/ml-1m-base.pth', map_location=torch.device('cpu')), strict = True)
 model = model.to('cpu')
