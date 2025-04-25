@@ -95,8 +95,8 @@ for epoch in tqdm(range(200)):
     print(f'recall_100: {test_recall_100 / len(test)}, recall_50: {test_recall_50 / len(test)}, recall_10: {test_recall_10 / len(test)}, ndcg_10: {test_ndcg_10 / len(test)}')
     wandb.log({"test_recall_100": test_recall_100 / len(test), "test_recall_50": test_recall_50 / len(test), "test_recall_10": test_recall_10 / len(test), "test_ndcg_10": test_ndcg_10 / len(test)})
 
-    if test_recall_100 / len(test) > best_recall100:
-        best_recall100 = test_recall_100 / len(test)
+    if valid_recall_100 / len(valid) > best_recall100:
+        valid_recall100 = valid_recall_100 / len(valid)
         torch.save(
             model.state_dict(),
             f'checkpoints/ml-1m-MSMRec-best.pth'

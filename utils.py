@@ -246,3 +246,11 @@ class EmbeddingModel:
 
     def __call__(self, *args, **kwds):
         return self.embed(*args, **kwds)
+    
+
+def trainable_parameters(model):
+    """
+    Prints the percentage of trainable parameters in a PyTorch model.
+    """
+    total_params = sum(p.numel() for p in model.parameters())
+    return f"Trainable parameters: {total_params}"

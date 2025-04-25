@@ -8,7 +8,8 @@ import os
 import pickle
 import argparse
 import wandb
-wandb.init(project="NLP_FINAL", entity="ukangrui")
+import sys
+# wandb.init(project="NLP_FINAL", entity="ukangrui")
 
 
 parser = argparse.ArgumentParser()
@@ -27,6 +28,8 @@ test_loader  = DataLoader(test, batch_size = 128, shuffle = False, collate_fn = 
 model = SASRec(user_num = num_u, item_num = num_i, maxlen = 200, num_blocks = 2, num_heads = 1, hidden_units = 50, dropout_rate = 0.2)
 
 model = model.to('cuda')
+print(trainable_parameters(model))
+sys.exit()
 for name, param in model.named_parameters():
     try:
         torch.nn.init.xavier_normal_(param.data)
